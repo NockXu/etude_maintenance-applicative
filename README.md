@@ -1,66 +1,48 @@
-# Mini Site Web - TP Maintenance Applicative
+# Mini Shop - Gestion de Produits
 
-Ce projet est un mini site web développé en **Node.js/Express avec TypeScript** et **MySQL** dans le cadre du TP de Maintenance Applicative (R6.A.06 - BUT 3 Informatique).
+> VOITURIER Noa, NOEL Clément - Groupe 5
 
-## Description
+Application web de gestion d'inventaire et d'achat de produits, construite avec **Node.js**, **Express**, **TypeScript** et **MySQL**.
 
-Application web de gestion de produits permettant de :
-- Consulter une page d'accueil
-- Se connecter avec un système d'authentification
-- Gérer des produits (CRUD : Create, Read, Update, Delete)
-- Calculer la valeur totale de l'inventaire
+## Fonctionnalités
 
-## Technologies utilisées
+### Pour les utilisateurs
+- Inscription et connexion
+- Consultation du catalogue de produits
+- Achat de produits (mise à jour automatique du stock)
+- Consultation de la valeur totale de l'inventaire
 
-- **Backend** : Node.js, Express.js, TypeScript
-- **Base de données** : MySQL
-- **Moteur de templates** : EJS
-- **Sessions** : express-session
+### Pour les administrateurs
+- Gestion complète des produits (CRUD)
+  - Ajout de nouveaux produits
+  - Modification des produits existants
+  - Suppression de produits
+- Suivi des stocks
 
-## Structure du projet
+## Technologies
 
-```
-siteweb-bug/
-├── src/                       # Code source TypeScript
-│   ├── app.ts                 # Point d'entrée de l'application
-│   ├── config/
-│   │   └── database.ts        # Configuration de la connexion MySQL
-│   ├── routes/
-│   │   ├── index.ts           # Routes de la page d'accueil
-│   │   ├── auth.ts            # Routes d'authentification
-│   │   └── products.ts        # Routes CRUD des produits
-│   └── types/
-│       └── index.ts           # Définitions des types TypeScript
-├── views/                     # Templates EJS
-│   ├── index.ejs              # Page d'accueil
-│   ├── login.ejs              # Page de connexion
-│   ├── products.ejs           # Liste des produits
-│   ├── product-form.ejs       # Formulaire ajout/modification
-│   └── total.ejs              # Page du calcul total
-├── public/
-│   └── css/
-│       └── style.css          # Styles CSS
-├── database/
-│   └── init.sql               # Script d'initialisation de la BDD
-├── package.json               # Dépendances et scripts npm
-├── tsconfig.json              # Configuration TypeScript
-└── README.md                  # Documentation
-```
+| Catégorie | Technologie |
+|-----------|-------------|
+| Backend | Node.js, Express.js |
+| Langage | TypeScript |
+| Base de données | MySQL |
+| Templates | EJS |
+| Sessions | express-session |
 
 ## Installation
 
 ### Prérequis
 
-- Node.js (v14 ou supérieur)
-- MySQL (v5.7 ou supérieur)
-- npm ou yarn
+- Node.js v14+
+- MySQL v5.7+
+- npm
 
-### Étapes d'installation
+### Configuration
 
 1. **Cloner le projet**
    ```bash
    git clone <url-du-repo>
-   cd siteweb-bug
+   cd mini-shop
    ```
 
 2. **Installer les dépendances**
@@ -68,70 +50,108 @@ siteweb-bug/
    npm install
    ```
 
-3. **Configurer la base de données**
-
-   Créer la base de données et les tables en exécutant le script SQL :
+3. **Initialiser la base de données**
    ```bash
    mysql -u root -p < database/init.sql
    ```
 
 4. **Configurer la connexion MySQL**
 
-   Modifier les paramètres dans `src/config/database.ts` si nécessaire :
+   Modifier `src/config/database.ts` avec vos identifiants :
    ```typescript
    host: 'localhost',
-   user: 'root',
-   password: 'root',
+   user: 'votre_utilisateur',
+   password: 'votre_mot_de_passe',
    database: 'mini_site'
    ```
 
-5. **Compiler et démarrer l'application**
+5. **Lancer l'application**
 
-   En mode production :
-   ```bash
-   npm run build
-   npm start
-   ```
-
-   Ou en mode développement avec rechargement automatique :
+   Mode développement :
    ```bash
    npm run dev
    ```
 
-6. **Accéder au site**
+   Mode production :
+   ```bash
+   npm run build && npm start
+   ```
 
-   Ouvrir un navigateur et aller sur : `http://localhost:3000`
+6. **Accéder au site** : http://localhost:3000
 
-## Utilisation
+## Structure du projet
 
-### Comptes de test
+```
+mini-shop/
+├── src/
+│   ├── app.ts                 # Point d'entrée
+│   ├── config/
+│   │   └── database.ts        # Configuration MySQL
+│   ├── routes/
+│   │   ├── index.ts           # Page d'accueil
+│   │   ├── auth.ts            # Authentification
+│   │   └── products.ts        # Gestion des produits
+│   └── types/
+│       └── index.ts           # Types TypeScript
+├── views/                     # Templates EJS
+│   ├── index.ejs
+│   ├── login.ejs
+│   ├── register.ejs
+│   ├── products.ejs
+│   ├── product-form.ejs
+│   └── total.ejs
+├── public/css/                # Styles
+├── database/
+│   └── init.sql               # Script d'initialisation
+└── package.json
+```
 
-| Utilisateur | Mot de passe | Rôle  |
-|-------------|--------------|-------|
-| admin       | admin123     | admin |
-| user        | user123      | user  |
+## API Routes
 
-### Fonctionnalités
+### Authentification
 
-- **Page d'accueil** (`/`) : Présentation du site
-- **Connexion** (`/auth/login`) : Formulaire de connexion
-- **Déconnexion** (`/auth/logout`) : Déconnexion de l'utilisateur
-- **Liste des produits** (`/products`) : Affichage de tous les produits (authentification requise)
-- **Ajouter un produit** (`/products/add`) : Formulaire d'ajout
-- **Modifier un produit** (`/products/edit/:id`) : Formulaire de modification
-- **Supprimer un produit** (`/products/delete/:id`) : Suppression d'un produit
-- **Calcul du total** (`/products/total`) : Calcule la valeur totale de l'inventaire
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/auth/login` | GET | Page de connexion |
+| `/auth/login` | POST | Traitement connexion |
+| `/auth/register` | GET | Page d'inscription |
+| `/auth/register` | POST | Traitement inscription |
+| `/auth/logout` | GET | Déconnexion |
 
-## Scripts npm
+### Produits
+
+| Route | Méthode | Accès | Description |
+|-------|---------|-------|-------------|
+| `/products` | GET | Tous | Liste des produits |
+| `/products/add` | GET | Admin | Formulaire d'ajout |
+| `/products/add` | POST | Admin | Créer un produit |
+| `/products/edit/:id` | GET | Admin | Formulaire de modification |
+| `/products/edit/:id` | POST | Admin | Modifier un produit |
+| `/products/delete/:id` | GET | Admin | Supprimer un produit |
+| `/products/buy/:id` | POST | User | Acheter un produit |
+| `/products/total` | GET | Tous | Valeur totale inventaire |
+
+## Scripts
 
 | Commande | Description |
 |----------|-------------|
-| `npm run build` | Compile le TypeScript en JavaScript |
-| `npm start` | Démarre le serveur en production |
-| `npm run dev` | Démarre le serveur en mode développement |
+| `npm run dev` | Serveur de développement avec hot-reload |
+| `npm run build` | Compilation TypeScript |
+| `npm start` | Serveur de production |
 
-## Auteurs
+## Base de données
 
-- Projet réalisé dans le cadre du cours R6.A.06 - Maintenance Applicative
-- IUT du Littoral Côte d'Opale - BUT 3 Informatique
-- Année 2025-2026
+### Tables
+
+- **users** : Utilisateurs (id, username, password, role)
+- **products** : Produits (id, name, description, price, quantity)
+- **purchases** : Historique des achats (id, user_id, product_id, quantity, total_price)
+
+### Rôles
+
+- `admin` : Gestion complète des produits
+- `user` : Consultation et achat de produits
+
+## Licence
+
+MIT

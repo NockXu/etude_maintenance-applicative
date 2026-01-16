@@ -184,7 +184,7 @@ router.post('/buy/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
-        // Vérifier si le produit existe et a du stock
+        // Vérifier si le produit existe
         const [products] = await pool.execute<RowDataPacket[]>(
             'SELECT * FROM products WHERE id = ?',
             [id]
@@ -196,9 +196,13 @@ router.post('/buy/:id', async (req: Request, res: Response) => {
 
         const product = products[0] as Product;
 
+        // Vérification du stock basée sur la valeur récupérée (peut être obsolète)
         if (product.quantity <= 0) {
             return res.redirect('/products');
         }
+
+        // Simuler un délai de traitement (ex: vérification paiement)
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Diminuer la quantité de 1
         await pool.execute(
