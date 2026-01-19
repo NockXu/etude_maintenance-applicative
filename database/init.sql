@@ -13,7 +13,7 @@ USE mini_site;
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,  -- Stocké en clair (volontairement non sécurisé)
+    password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'user') DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS products (
 -- Données de test - Utilisateurs
 -- ============================================================
 INSERT INTO users (username, password, role) VALUES
-    ('admin', 'admin123', 'admin'),
-    ('user', 'user123', 'user');
+    ('admin', '$2b$10$Exq0LaeUn0wSCQxNMDMzZOZRYk.s/T4DbJWSfB48meYGCgw5Bfqfq', 'admin'),
+    ('user', '$2b$10$cnYid4zhD4QZrG11XcCLuepGNGp5xAQZSWwS4kAn63TQhHS8P6nUC', 'user');
 
 -- ============================================================
 -- Données de test - Produits
