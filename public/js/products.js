@@ -12,56 +12,86 @@ class ProductsApp {
     }
 
     async loadProducts() {
+        console.log('Chargement des produits...');
         try {
             const response = await fetch('/products/api/products');
+            console.log('Réponse reçue:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const result = await response.json();
+            console.log('Données reçues:', result);
             
             if (result.success) {
                 this.products = result.data.products;
                 this.productsWithPurchases = new Set(result.data.productsWithPurchases);
+                console.log('Produits chargés:', this.products.length);
             } else {
+                console.error('Erreur dans la réponse:', result);
                 this.showError('Erreur lors du chargement des produits');
             }
         } catch (error) {
-            console.error('Erreur:', error);
+            console.error('Erreur lors du chargement:', error);
             this.showError('Erreur de connexion au serveur');
         }
     }
 
     setupEventListeners() {
+        console.log('Configuration des événements...');
+        
         // Événements pour les formulaires
-        document.getElementById('addProductForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addProduct();
-        });
+        const addForm = document.getElementById('addProductFormElement');
+        if (addForm) {
+            console.log('Formulaire d\'ajout trouvé');
+            addForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                console.log('Soumission du formulaire d\'ajout');
+                this.addProduct();
+            });
+        } else {
+            console.error('Formulaire d\'ajout non trouvé');
+        }
 
-        document.getElementById('editProductForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.updateProduct();
-        });
+        const editForm = document.getElementById('editProductFormElement');
+        if (editForm) {
+            console.log('Formulaire de modification trouvé');
+            editForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                console.log('Soumission du formulaire de modification');
+                this.updateProduct();
+            });
+        } else {
+            console.error('Formulaire de modification non trouvé');
+        }
 
         // Événements pour les actions
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('btn-buy')) {
                 e.preventDefault();
                 const productId = e.target.dataset.productId;
+                console.log('Achat du produit:', productId);
                 this.buyProduct(productId);
             }
 
             if (e.target.classList.contains('btn-edit')) {
                 e.preventDefault();
                 const productId = e.target.dataset.productId;
+                console.log('Modification du produit:', productId);
                 this.showEditForm(productId);
             }
 
             if (e.target.classList.contains('btn-delete')) {
                 e.preventDefault();
                 const productId = e.target.dataset.productId;
+                console.log('Suppression du produit:', productId);
                 this.deleteProduct(productId);
             }
 
             if (e.target.classList.contains('btn-cancel')) {
                 e.preventDefault();
+                console.log('Annulation');
                 this.hideForms();
             }
         });
@@ -155,9 +185,16 @@ class ProductsApp {
     }
 
     async addProduct() {
-        const form = document.getElementById('addProductForm');
+        const form = document.getElementById('addProductFormElement');
+        if (!form) {
+            console.error('Formulaire d\'ajout non trouvé');
+            return;
+        }
+        
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        
+        console.log('Données du formulaire:', data);
 
         try {
             const response = await fetch('/products/api/products', {
@@ -168,7 +205,9 @@ class ProductsApp {
                 body: JSON.stringify(data)
             });
 
+            console.log('Réponse du serveur:', response.status);
             const result = await response.json();
+            console.log('Résultat:', result);
 
             if (result.success) {
                 this.showSuccess('Produit ajouté avec succès');
@@ -185,10 +224,18 @@ class ProductsApp {
     }
 
     async updateProduct() {
-        const form = document.getElementById('editProductForm');
+        const form = document.getElementById('editProductFormElement');
+        if (!form) {
+            console.error('Formulaire de modification non trouvé');
+            return;
+        }
+        
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         const productId = form.dataset.productId;
+        
+        console.log('Données du formulaire:', data);
+        console.log('ID du produit:', productId);
 
         try {
             const response = await fetch(`/products/api/products/${productId}`, {
@@ -199,7 +246,9 @@ class ProductsApp {
                 body: JSON.stringify(data)
             });
 
+            console.log('Réponse du serveur:', response.status);
             const result = await response.json();
+            console.log('Résultat:', result);
 
             if (result.success) {
                 this.showSuccess('Produit modifié avec succès');
@@ -262,22 +311,32 @@ class ProductsApp {
     }
 
     showAddForm() {
+        console.log('Affichage du formulaire d\'ajout');
         this.hideForms();
-        const form = document.getElementById('addProductForm');
-        if (form) {
-            form.style.display = 'block';
-            form.reset();
+        const popup = document.getElementById('addProductForm');
+        if (popup) {
+            popup.style.display = 'flex';
+            const form = document.getElementById('addProductFormElement');
+            if (form) {
+                form.reset();
+            }
+        } else {
+            console.error('Popup d\'ajout non trouvé');
         }
     }
 
     showEditForm(productId) {
         const product = this.products.find(p => p.id == productId);
-        if (!product) return;
+        if (!product) {
+            console.error('Produit non trouvé:', productId);
+            return;
+        }
+
+        console.log('Affichage du formulaire de modification pour:', product);
 
         this.hideForms();
-        const form = document.getElementById('editProductForm');
+        const form = document.getElementById('editProductFormElement');
         if (form) {
-            form.style.display = 'block';
             form.dataset.productId = productId;
             
             // Remplir le formulaire
@@ -285,6 +344,14 @@ class ProductsApp {
             document.getElementById('editDescription').value = product.description;
             document.getElementById('editPrice').value = product.price;
             document.getElementById('editQuantity').value = product.quantity;
+            
+            // Afficher le popup
+            const popup = document.getElementById('editProductForm');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        } else {
+            console.error('Formulaire de modification non trouvé');
         }
     }
 
