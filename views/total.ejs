@@ -30,10 +30,10 @@
                 <div class="total-summary">
                     <div class="total-card">
                         <span class="total-label">Total calculé</span>
-                        <span class="total-value"><%= total %> &euro;</span>
+                        <span class="total-value">0.00 €</span>
                     </div>
                     <p class="total-info">
-                        Calculé sur <strong><%= products.length %></strong> produit(s)
+                        Calculé sur <strong>0</strong> produit(s)
                     </p>
                 </div>
 
@@ -50,29 +50,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% products.forEach(product => { %>
-                                <tr>
-                                    <td><%= product.name %></td>
-                                    <td><%= parseFloat(product.price).toFixed(2) %> &euro;</td>
-                                    <td><%= product.quantity %></td>
-                                    <!-- Note: Le sous-total affiché ici montre price * quantity (correct)
-                                         mais le calcul réel dans le backend utilise + (bug) -->
-                                    <td><%= (parseFloat(product.price) * product.quantity).toFixed(2) %> &euro;</td>
-                                </tr>
-                            <% }) %>
+                            <!-- Les produits seront chargés dynamiquement -->
+                            <tr>
+                                <td colspan="4" class="loading">Chargement des produits...</td>
+                            </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3"><strong>Total attendu (prix x quantité)</strong></td>
+                                <td colspan="3"><strong>Total calculé</strong></td>
                                 <td>
-                                    <strong>
-                                        <%= products.reduce((sum, p) => sum + (parseFloat(p.price) * p.quantity), 0).toFixed(2) %> &euro;
-                                    </strong>
+                                    <strong>0.00 €</strong>
                                 </td>
-                            </tr>
-                            <tr class="bug-row">
-                                <td colspan="3"><strong>Total calculé par le système</strong></td>
-                                <td><strong><%= total %> &euro;</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -89,5 +77,8 @@
     <footer>
         <p>&copy; 2025-2026 - TP Maintenance Applicative - IUT du Littoral Côte d'Opale</p>
     </footer>
+
+    <!-- Script de l'application -->
+    <script src="/js/products.js"></script>
 </body>
 </html>

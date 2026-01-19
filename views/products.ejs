@@ -6,7 +6,7 @@
     <title>Produits - Mini Site Web</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body data-user-role="<%= role %>">
     <!-- Header avec navigation -->
     <header>
         <nav>
@@ -28,72 +28,97 @@
                 <h2>Liste des produits</h2>
                 <div class="products-actions">
                     <% if (role === 'admin') { %>
-                        <a href="/products/add" class="btn btn-primary">Ajouter un produit</a>
+                        <button class="btn btn-primary" onclick="app.showAddForm()">Ajouter un produit</button>
                     <% } %>
                     <a href="/products/total" class="btn btn-secondary">Calculer le total</a>
                 </div>
             </div>
 
-            <% if (typeof error !== 'undefined' && error) { %>
-                <div class="alert alert-error">
-                    <%= error %>
+            <!-- Formulaire d'ajout (popup) -->
+            <% if (role === 'admin') { %>
+            <div id="addProductForm" class="form-popup" style="display: none;">
+                <div class="form-container">
+                    <h3>Ajouter un produit</h3>
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Nom du produit *</label>
+                            <input type="text" id="name" name="name" required placeholder="Ex: Laptop HP">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Description du produit..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Prix (€) *</label>
+                                <input type="number" id="price" name="price" step="0.01" min="0" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantité *</label>
+                                <input type="number" id="quantity" name="quantity" min="0" required placeholder="0">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                            <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                        </div>
+                    </form>
                 </div>
+            </div>
+
+            <!-- Formulaire de modification (popup) -->
+            <div id="editProductForm" class="form-popup" style="display: none;">
+                <div class="form-container">
+                    <h3>Modifier le produit</h3>
+                    <form>
+                        <div class="form-group">
+                            <label for="editName">Nom du produit *</label>
+                            <input type="text" id="editName" name="name" required placeholder="Ex: Laptop HP">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDescription">Description</label>
+                            <textarea id="editDescription" name="description" rows="4" placeholder="Description du produit..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editPrice">Prix (€) *</label>
+                                <input type="number" id="editPrice" name="price" step="0.01" min="0" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="editQuantity">Quantité *</label>
+                                <input type="number" id="editQuantity" name="quantity" min="0" required placeholder="0">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <% } %>
 
-            <% if (products.length === 0) { %>
-                <div class="empty-state">
-                    <p>Aucun produit trouvé.</p>
-                    <a href="/products/add" class="btn btn-primary">Ajouter votre premier produit</a>
-                </div>
-            <% } else { %>
-                <div class="table-container">
-                    <table class="products-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Description</th>
-                                <th>Prix</th>
-                                <th>Quantité</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% products.forEach(product => { %>
-                                <tr>
-                                    <td><%= product.id %></td>
-                                    <td><%- product.name %></td>
-                                    <td><%- product.description %></td>
-                                    <td><%= parseFloat(product.price).toFixed(2) %> &euro;</td>
-                                    <td><%= product.quantity %></td>
-                                    <td class="actions">
-                                        <% if (role === 'admin') { %>
-                                            <a href="/products/edit/<%= product.id %>" class="btn btn-small btn-edit">
-                                                Modifier
-                                            </a>
-                                            <% if (productsWithPurchases && productsWithPurchases.has(product.id)) { %>
-                                                <span class="btn btn-small btn-disabled" title="Ce produit ne peut pas être supprimé car il a été acheté">Supprimer</span>
-                                            <% } else { %>
-                                                <a href="/products/delete/<%= product.id %>" class="btn btn-small btn-delete">
-                                                    Supprimer
-                                                </a>
-                                            <% } %>
-                                        <% } else { %>
-                                            <% if (product.quantity > 0) { %>
-                                                <form action="/products/buy/<%= product.id %>" method="POST" style="display:inline;">
-                                                    <button type="submit" class="btn btn-small btn-primary">Acheter</button>
-                                                </form>
-                                            <% } else { %>
-                                                <span class="btn btn-small btn-disabled">Rupture de stock</span>
-                                            <% } %>
-                                        <% } %>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } %>
+            <!-- Table des produits -->
+            <div class="table-container">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les produits seront chargés dynamiquement -->
+                        <tr>
+                            <td colspan="6" class="loading">Chargement des produits...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 
@@ -101,5 +126,8 @@
     <footer>
         <p>&copy; 2025-2026 - TP Maintenance Applicative - IUT du Littoral Côte d'Opale</p>
     </footer>
+
+    <!-- Script de l'application -->
+    <script src="/js/products.js"></script>
 </body>
 </html>
