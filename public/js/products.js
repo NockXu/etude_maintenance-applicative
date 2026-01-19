@@ -362,26 +362,69 @@ class ProductsApp {
     }
 
     showSuccess(message) {
-        this.showAlert(message, 'success');
+        this.showToast(message, 'success', 'Succès');
     }
 
     showError(message) {
-        this.showAlert(message, 'error');
+        this.showToast(message, 'error', 'Erreur');
     }
 
-    showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.textContent = message;
-        
-        const container = document.querySelector('.products-section, .total-section');
-        if (container) {
-            container.insertBefore(alertDiv, container.firstChild);
+    showToast(message, type = 'info', title = '') {
+        // Créer le conteneur de toast s'il n'existe pas
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
         }
 
+        // Créer le toast
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        // Définir l'icône selon le type
+        let icon = '✓';
+        if (type === 'error') icon = '✕';
+        else if (type === 'info') icon = 'ℹ';
+        
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-content">
+                ${title ? `<div class="toast-title">${title}</div>` : ''}
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" aria-label="Fermer">✕</button>
+        `;
+
+        // Ajouter le toast au conteneur
+        container.appendChild(toast);
+
+        // Gérer la fermeture manuelle
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.addEventListener('click', () => {
+            this.hideToast(toast);
+        });
+
+        // Afficher le toast avec une petite animation
         setTimeout(() => {
-            alertDiv.remove();
-        }, 5000);
+            toast.classList.add('show');
+        }, 100);
+
+        // Masquer automatiquement après 4 secondes
+        setTimeout(() => {
+            this.hideToast(toast);
+        }, 4000);
+    }
+
+    hideToast(toast) {
+        if (!toast || toast.classList.contains('hiding')) return;
+        
+        toast.classList.add('hiding');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
     }
 
     isAdmin() {
