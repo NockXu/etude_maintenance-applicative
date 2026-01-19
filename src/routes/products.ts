@@ -168,6 +168,27 @@ router.get('/delete/:id', requireAdmin, async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
+        // Vérifier si le produit a des achats associés
+        const [purchases] = await pool.execute<RowDataPacket[]>(
+            'SELECT COUNT(*) as count FROM purchases WHERE product_id = ?',
+            [id]
+        );
+
+        if (purchases[0].count > 0) {
+            // Récupérer les produits pour afficher la page avec message d'erreur
+            const [products] = await pool.execute<RowDataPacket[]>(
+                'SELECT * FROM products ORDER BY created_at DESC'
+            );
+
+            return res.render('products', {
+                products,
+                username: req.session.username,
+                role: req.session.role,
+                error: 'Impossible de supprimer ce produit car il a déjà été acheté par des utilisateurs'
+            });
+        }
+
+        // Supprimer le produit s'il n'a pas d'achats associés
         await pool.execute('DELETE FROM products WHERE id = ?', [id]);
         res.redirect('/products');
     } catch (error) {
