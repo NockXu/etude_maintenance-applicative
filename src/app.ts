@@ -11,6 +11,10 @@
 import express, { Application, Request, Response } from 'express';
 import session from 'express-session';
 import path from 'path';
+import dotenv from 'dotenv';
+
+// Charger les variables d'environnement
+dotenv.config();
 
 // Import des routes
 import indexRoutes from './routes/index';
@@ -20,8 +24,8 @@ import productsRoutes from './routes/products';
 // Création de l'application Express
 const app: Application = express();
 
-// Port du serveur (en dur - devrait être dans une variable d'environnement)
-const PORT = 3000;
+// Port du serveur depuis variable d'environnement
+const PORT = process.env.PORT || 3000;
 
 /**
  * Configuration des middlewares
@@ -41,16 +45,19 @@ app.set('views', path.join(__dirname, '../views'));
 /**
  * Configuration des sessions
  */
+if (process.env.SESSION_SECRET){
 app.use(session({
-    secret: 'secret123',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === 'production', // true en production (HTTPS)
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000  // 24 heures
     }
 }));
+}
+
 
 /**
  * Configuration des routes
