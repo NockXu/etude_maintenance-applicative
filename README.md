@@ -1,6 +1,7 @@
 # Mini Shop - Gestion de Produits
 
-> VOITURIER Noa, NOEL Clément - Groupe 5
+[DAVID Gabriel](https://github.com/NockXu)
+[GUILMIN Leny](https://github.com/TarzanHR)
 
 Application web de gestion d'inventaire et d'achat de produits, construite avec **Node.js**, **Express**, **TypeScript** et **MySQL**.
 
