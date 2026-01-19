@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur <%= errorCode %> - Mini Site Web</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header avec navigation -->
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Mini Site Web</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Accueil</a></li>
+                <% if (isLoggedIn) { %>
+                    <li><a href="/products">Produits</a></li>
+                    <li><a href="/auth/logout">Déconnexion (<%= username %>)</a></li>
+                <% } else { %>
+                    <li><a href="/auth/login">Connexion</a></li>
+                    <li><a href="/auth/register">Inscription</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <section class="error-section">
+            <div class="error-container">
+                <div class="error-code">
+                    <h1><%= errorCode %></h1>
+                </div>
+                <div class="error-message">
+                    <h2>Erreur</h2>
+                    <p><%= error %></p>
+                </div>
+                <div class="error-actions">
+                    <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+                    <% if (isLoggedIn) { %>
+                        <a href="/products" class="btn btn-secondary">Voir les produits</a>
+                    <% } else { %>
+                        <a href="/auth/login" class="btn btn-secondary">Se connecter</a>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025-2026 - TP Maintenance Applicative - IUT du Littoral Côte d'Opale</p>
+    </footer>
+</body>
+</html>
