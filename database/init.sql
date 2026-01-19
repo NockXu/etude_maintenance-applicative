@@ -3,6 +3,9 @@
 -- Mini Site Web - TP Maintenance Applicative
 -- ============================================================
 
+-- Désactivation des contraintes pour permettre le nettoyage
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- Création de la base de données
 CREATE DATABASE IF NOT EXISTS mini_site;
 USE mini_site;
@@ -20,7 +23,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- ============================================================
 -- Table des produits
--- Stocke les informations des produits pour le CRUD
 -- ============================================================
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,6 +32,27 @@ CREATE TABLE IF NOT EXISTS products (
     quantity INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ============================================================
+-- Table des achats
+-- ============================================================
+CREATE TABLE IF NOT EXISTS purchases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    total_price DECIMAL(10, 2) NOT NULL,
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- ============================================================
+-- Nettoyage des données existantes (Reset)
+-- ============================================================
+TRUNCATE TABLE purchases;
+TRUNCATE TABLE products;
+TRUNCATE TABLE users;
 
 -- ============================================================
 -- Données de test - Utilisateurs
@@ -48,17 +71,5 @@ INSERT INTO products (name, description, price, quantity) VALUES
     ('Écran 27 pouces', 'Moniteur LED 27" Full HD IPS', 249.99, 20),
     ('Webcam HD', 'Webcam 1080p avec microphone intégré', 59.99, 50);
 
--- ============================================================
--- Table des achats
--- Enregistre les achats effectués par les utilisateurs
--- ============================================================
-CREATE TABLE IF NOT EXISTS purchases (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT DEFAULT 1,
-    total_price DECIMAL(10, 2) NOT NULL,
-    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
+-- Réactivation des contraintes
+SET FOREIGN_KEY_CHECKS = 1;
