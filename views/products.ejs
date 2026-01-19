@@ -71,9 +71,13 @@
                                             <a href="/products/edit/<%= product.id %>" class="btn btn-small btn-edit">
                                                 Modifier
                                             </a>
-                                            <a href="/products/delete/<%= product.id %>" class="btn btn-small btn-delete">
-                                                Supprimer
-                                            </a>
+                                            <% if (productsWithPurchases && productsWithPurchases.has(product.id)) { %>
+                                                <span class="btn btn-small btn-disabled" title="Ce produit ne peut pas être supprimé car il a été acheté">Supprimer</span>
+                                            <% } else { %>
+                                                <a href="/products/delete/<%= product.id %>" class="btn btn-small btn-delete">
+                                                    Supprimer
+                                                </a>
+                                            <% } %>
                                         <% } else { %>
                                             <% if (product.quantity > 0) { %>
                                                 <form action="/products/buy/<%= product.id %>" method="POST" style="display:inline;">

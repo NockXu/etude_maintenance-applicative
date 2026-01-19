@@ -53,10 +53,18 @@ router.get('/', async (req: Request, res: Response) => {
             'SELECT * FROM products ORDER BY created_at DESC'
         );
 
+        // Récupérer les produits qui ont des achats associés
+        const [purchases] = await pool.execute<RowDataPacket[]>(
+            'SELECT DISTINCT product_id FROM purchases'
+        );
+        
+        const productsWithPurchases = new Set(purchases.map(p => p.product_id));
+
         res.render('products', {
             products,
             username: req.session.username,
-            role: req.session.role
+            role: req.session.role,
+            productsWithPurchases
         });
     } catch (error) {
         console.error('Erreur lors de la récupération des produits:', error);
@@ -64,6 +72,7 @@ router.get('/', async (req: Request, res: Response) => {
             products: [],
             username: req.session.username,
             role: req.session.role,
+            productsWithPurchases: new Set(),
             error: 'Erreur lors du chargement des produits'
         });
     }
@@ -180,10 +189,18 @@ router.get('/delete/:id', requireAdmin, async (req: Request, res: Response) => {
                 'SELECT * FROM products ORDER BY created_at DESC'
             );
 
+            // Récupérer les produits qui ont des achats associés
+            const [purchasesList] = await pool.execute<RowDataPacket[]>(
+                'SELECT DISTINCT product_id FROM purchases'
+            );
+            
+            const productsWithPurchases = new Set(purchasesList.map(p => p.product_id));
+
             return res.render('products', {
                 products,
                 username: req.session.username,
                 role: req.session.role,
+                productsWithPurchases,
                 error: 'Impossible de supprimer ce produit car il a déjà été acheté par des utilisateurs'
             });
         }
