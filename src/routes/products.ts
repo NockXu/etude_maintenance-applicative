@@ -183,44 +183,55 @@ router.get('/delete/:id', requireAdmin, async (req: Request, res: Response) => {
 router.post('/buy/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
+    // Démarrer une transaction pour éviter les race conditions
+    const connection = await pool.getConnection();
+    
     try {
-        // Vérifier si le produit existe
-        const [products] = await pool.execute<RowDataPacket[]>(
+        await connection.beginTransaction();
+
+        // Vérifier et décrémenter le stock en une seule opération atomique
+        const [result] = await connection.execute<ResultSetHeader>(
+            'UPDATE products SET quantity = quantity - 1 WHERE id = ? AND quantity > 0',
+            [id]
+        );
+
+        // Vérifier si le produit existait et avait du stock
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            return res.redirect('/products');
+        }
+
+        // Récupérer les informations mises à jour du produit
+        const [products] = await connection.execute<RowDataPacket[]>(
             'SELECT * FROM products WHERE id = ?',
             [id]
         );
 
         if (products.length === 0) {
+            await connection.rollback();
             return res.redirect('/products');
         }
 
         const product = products[0] as Product;
 
-        // Vérification du stock basée sur la valeur récupérée (peut être obsolète)
-        if (product.quantity <= 0) {
-            return res.redirect('/products');
-        }
-
-        // Simuler un délai de traitement (ex: vérification paiement)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Diminuer la quantité de 1
-        await pool.execute(
-            'UPDATE products SET quantity = quantity - 1 WHERE id = ?',
-            [id]
-        );
-
         // Enregistrer l'achat
-        await pool.execute(
+        await connection.execute(
             'INSERT INTO purchases (user_id, product_id, quantity, total_price) VALUES (?, ?, 1, ?)',
             [req.session.userId, id, product.price]
         );
 
-        res.redirect('/products');
+        // Valider la transaction
+        await connection.commit();
+
     } catch (error) {
+        await connection.rollback();
         console.error('Erreur lors de l\'achat du produit:', error);
-        res.redirect('/products');
+        return res.redirect('/products');
+    } finally {
+        connection.release();
     }
+
+    res.redirect('/products');
 });
 
 /**
