@@ -7,6 +7,7 @@
  */
 
 import { Router, Request, Response } from 'express';
+import bcrypt from 'bcrypt';
 import pool from '../config/database';
 import { RowDataPacket } from 'mysql2';
 
@@ -32,23 +33,32 @@ router.post('/login', async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
     try {
-        const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
-
-        console.log('Requête SQL exécutée:', query); // Log pour debug (mauvaise pratique aussi)
-
-        const [rows] = await pool.execute<RowDataPacket[]>(query);
+        // Récupérer l'utilisateur avec le mot de passe hashé
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            'SELECT * FROM users WHERE username = ?',
+            [username]
+        );
 
         if (rows.length > 0) {
-            // Utilisateur trouvé - création de la session
             const user = rows[0];
-            req.session.userId = user.id;
-            req.session.username = user.username;
-            req.session.role = user.role;
-            req.session.isLoggedIn = true;
+            
+            // Vérifier le mot de passe
+            const isValidPassword = await bcrypt.compare(password, user.password);
+            
+            if (isValidPassword) {
+                // Utilisateur authentifié - création de la session
+                req.session.userId = user.id;
+                req.session.username = user.username;
+                req.session.role = user.role;
+                req.session.isLoggedIn = true;
 
-            res.redirect('/products');
+                res.redirect('/products');
+            } else {
+                // Mot de passe incorrect
+                res.render('login', { error: 'Nom d\'utilisateur ou mot de passe incorrect' });
+            }
         } else {
-            // Identifiants incorrects
+            // Utilisateur non trouvé
             res.render('login', { error: 'Nom d\'utilisateur ou mot de passe incorrect' });
         }
     } catch (error) {
@@ -82,6 +92,10 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     try {
+        // Hasher le mot de passe
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
         // Vérifier si le nom d'utilisateur existe déjà
         const [existingUsers] = await pool.execute<RowDataPacket[]>(
             'SELECT id FROM users WHERE username = ?',
@@ -94,7 +108,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
         await pool.execute(
             'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-            [username, password, 'user']
+            [username, hashedPassword, 'user']
         );
 
         // Rediriger vers la page de connexion après inscription

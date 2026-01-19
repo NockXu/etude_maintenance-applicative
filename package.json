@@ -12,7 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/nonov1012/-Etude-maintenance-applicative.git"
   },
-  "keywords": ["express", "mysql", "typescript", "crud"],
+  "keywords": [
+    "express",
+    "mysql",
+    "typescript",
+    "crud"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -20,12 +25,14 @@
   },
   "homepage": "https://github.com/nonov1012/-Etude-maintenance-applicative#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "mysql2": "^3.6.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/ejs": "^3.1.5",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.17.10",
