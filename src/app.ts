@@ -71,6 +71,8 @@ app.use('/products', productsRoutes); // Routes CRUD des produits
  */
 app.use((req: Request, res: Response) => {
     res.status(404).render('error', {
+        isLoggedIn: req.session.isLoggedIn || false,
+        username: req.session.username || null,
         error: 'Page non trouvée',
         errorCode: 404
     });
