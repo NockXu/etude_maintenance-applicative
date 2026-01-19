@@ -13,10 +13,10 @@ import mysql from 'mysql2/promise';
  * Configuration de la connexion MySQL
  */
 const dbConfig = {
-    host: 'localhost',      // Serveur MySQL
-    user: 'root',           // Utilisateur MySQL
-    password: '1234',       // Mot de passe MySQL
-    database: 'mini_site',  // Nom de la base de données
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
